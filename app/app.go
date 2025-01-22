@@ -16,17 +16,25 @@ func Generate() *cli.App {
 		Usage: "A simple CLI network tool for IP and NS lookup",
 	}
 
+	flags := []cli.Flag{
+		cli.StringFlag{
+			Name: "host",
+			Value: "amazom.com",
+		},
+	}
+
 	app.Commands = []cli.Command{
 		{
 			Name: "ip",
 			Usage: "IP lookup",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name: "host",
-					Value: "google.com",
-				},
-			},
+			Flags: flags,
 			Action: ipLookup,
+		},
+		{
+			Name: "ns",
+			Usage: "NS lookup",
+			Flags: flags,
+			Action: nsLookup,
 		},
 	}
 
@@ -44,5 +52,19 @@ func ipLookup(c *cli.Context) {
 
 	for _, ip := range ips {
 		fmt.Println(ip)
+	}
+}
+
+func nsLookup(c *cli.Context) {
+	host := c.String("host")
+
+	nss, err := net.LookupNS(host)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, ns := range nss {
+		fmt.Println(ns.Host)
 	}
 }
